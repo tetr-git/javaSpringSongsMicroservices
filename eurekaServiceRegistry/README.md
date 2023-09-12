@@ -1,3 +1,5 @@
+https://cloud.spring.io/spring-cloud-netflix/reference/html/#spring-cloud-eureka-server
+
 Nachdem ich die Dokumentation zum Spring Cloud Netflix- Eureka Client/Serverz überflogen habe, habe ich chatgpt die Teilaufgabe zur Service Registry gegeben, mit dem Wunsch zu zeigen, wie ich Eureka in meinem Spring Cloud Projekt verwenden kann, die Antwort war bereits so umfangreich, dass ich sie hier als README.md eingefügt habe.
 
 Die einzelnen Schritte entsprechen weitgehend der Antwort von chatgpt, bei Intellji habe ich nur anstatt ein neues Projekt anzulegen ein neues Modul erstellt und über den Spring Initializer direkt den Eureka Server eingefügt, so mussten die Abhängigkeiten nicht mehr angepasst werden.
