@@ -1,16 +1,15 @@
-package com.eureka.eurekaserviceregistry;
+package com.eureka;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 
-@EnableEurekaServer // This annotation is used to enable the Eureka server
+@EnableEurekaServer
 @SpringBootApplication
-public class EurekaServiceRegistryApplication {
+public class EurekaApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(EurekaServiceRegistryApplication.class, args);
+        SpringApplication.run(EurekaApplication.class, args);
     }
 
 }
-
