@@ -1,5 +1,7 @@
-package com.auth;
+package com.songs.controller;
 
+import de.htwb.ai.model.User;
+import de.htwb.ai.repo.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("songsMS")
+@RequestMapping("songsWS-max_samuel/rest")
 public class AuthController {
 
     private final UserRepository userRepo;

@@ -1,10 +1,12 @@
-package com.auth;
-
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
+package de.htwb.ai.repo;
 
 import java.util.List;
+
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import de.htwb.ai.model.User;
 
 @Repository
 public interface UserRepository extends CrudRepository<User, Long> {

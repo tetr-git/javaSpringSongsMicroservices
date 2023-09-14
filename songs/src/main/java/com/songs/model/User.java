@@ -1,4 +1,4 @@
-package com.auth;
+package de.htwb.ai.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -30,13 +30,11 @@ public class User {
 
     public User() {
     }
-    /*@JsonIgnore
+    @JsonIgnore
     @OneToMany(mappedBy="userId",
             cascade=CascadeType.ALL, orphanRemoval=true, fetch =
             FetchType.EAGER)
     Set<SongList> songLists;
-
-     */
 
     public User(String userId, String password, String firstName, String lastName) {
         this.userId = userId;
@@ -81,7 +79,7 @@ public class User {
     public void setUserId(String userId) {
         this.userId = userId;
     }
-    /*
+
     public Set<SongList> getSongLists() {
         return songLists;
     }
@@ -89,5 +87,4 @@ public class User {
     public void setSongLists(Set<SongList> songLists) {
         this.songLists = songLists;
     }
-     */
 }
