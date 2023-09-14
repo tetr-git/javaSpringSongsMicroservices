@@ -1,4 +1,4 @@
-package com.songs.model;
+package com.songs;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -17,12 +17,16 @@ public class Song {
     private String artist;
     private String label;
     private int released;
+
+    /*
     @JsonIgnore
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, fetch = FetchType.EAGER)
     @JoinTable(name = "songlist_song",
             joinColumns = {@JoinColumn( name = "songid", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn( name = "songlistid", referencedColumnName = "id")})
     private Set<SongList> songLists;
+
+     */
 
     public Song (String title, String artist, String label, int released) {
         this.title = title;
@@ -73,6 +77,7 @@ public class Song {
     public void setReleased(int released) {
         this.released = released;
     }
+    /*
     @JsonIgnore
     public Set<SongList> getSongLists() {
         return songLists;
@@ -81,5 +86,5 @@ public class Song {
     public void setSongLists(Set<SongList> songLists) {
         this.songLists = songLists;
     }
-
+        */
 }
