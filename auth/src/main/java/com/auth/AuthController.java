@@ -37,6 +37,22 @@ public class AuthController {
         return ResponseEntity.ok().body(currentToken);
     }
 
+    //post route validate token
+    @PostMapping("/validate")
+    public ResponseEntity<String> validateToken(@RequestBody TokenRequest tokenRequest) {
+        // Check if the token is null or empty in the tokenRequest object
+        if (tokenRequest == null || tokenRequest.getToken() == null || tokenRequest.getToken().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // Compare the token from the request with your current token
+        if (tokenRequest.getToken().equals(currentToken)) {
+            return ResponseEntity.ok().body(null);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
+
     private static String generateRandomToken() {
         UUID uuid = UUID.randomUUID();
         return uuid.toString();
