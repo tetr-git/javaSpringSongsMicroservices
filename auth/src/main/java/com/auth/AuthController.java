@@ -51,14 +51,14 @@ public class AuthController {
     }
 
     @GetMapping("/getUserId")
-    public ResponseEntity<UUID> checkOwner(
+    public ResponseEntity<String> getUserId(
             @RequestHeader("Authorization") String authorization
     ) {
         if (!isAuthorizationValid(authorization)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         User user = userRepo.findUserByStringId(getCurrentUserId());
-        return ResponseEntity.ok().body(user.getPermId());
+        return ResponseEntity.ok().body(user.getUserId());
     }
 
 

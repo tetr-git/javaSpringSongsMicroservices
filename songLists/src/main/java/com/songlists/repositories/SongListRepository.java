@@ -1,5 +1,6 @@
-package com.songlists;
+package com.songlists.repositories;
 
+import com.songlists.models.SongList;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -8,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 @Repository
-public interface    SongListRepository extends CrudRepository<SongList, Long>{
+public interface SongListRepository extends CrudRepository<SongList, Long>{
 
     @Query(value = "SELECT * FROM songLists WHERE id = ?1", nativeQuery = true)
     List<SongList> selectSongListById(int id);

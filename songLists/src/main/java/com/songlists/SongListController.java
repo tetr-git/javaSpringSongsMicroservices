@@ -1,12 +1,14 @@
     package com.songlists;
 
-    import de.htwb.ai.exception.ResourceNotFoundException;
-    import de.htwb.ai.model.Song;
-    import de.htwb.ai.model.User;
-    import de.htwb.ai.repo.SongRepository;
-    import de.htwb.ai.repo.UserRepository;
+    import com.songlists.clients.AuthorizationClient;
+    import com.songlists.clients.SongsClient;
+    import com.songlists.exceptions.ResourceNotFoundException;
+    import com.songlists.models.Song;
+    import com.songlists.models.SongList;
+    import com.songlists.models.SongListSong;
+    import com.songlists.repositories.SongListRepository;
+    import com.songlists.repositories.SonglistSongsRepository;
     import jakarta.transaction.Transactional;
-    import org.apache.catalina.User;
     import org.slf4j.Logger;
     import org.slf4j.LoggerFactory;
     import org.springframework.http.HttpStatus;
@@ -17,32 +19,38 @@
     import java.util.*;
 
     @RestController
-    @RequestMapping("songsWS-max_samuel/rest")
+    @RequestMapping("/songMS")
     public class SongListController {
 
         private final SongListRepository songListRepository;
 
-        private final AuthClient authClient;
+        private final SonglistSongsRepository songListSongRepository;
+
+        private final AuthorizationClient authorizationClient;
 
         private final SongsClient songsClient;
 
-        public SongListController(SongListRepository songListRepository, AuthClient authClient, SongsClient songsClient) {
+        public SongListController(SongListRepository songListRepository, SonglistSongsRepository songListSongRepository,
+                                  AuthorizationClient authorizationClient, SongsClient songsClient) {
             this.songListRepository = songListRepository;
-            this.authClient = authClient;
+            this.songListSongRepository = songListSongRepository;
+            this.authorizationClient = authorizationClient;
             this.songsClient = songsClient;
         }
+
+
 
         @GetMapping("/songLists")
         public ResponseEntity<List<Map<String, Object>>> getSongLists(
                 @RequestParam("userId") String userId,
                 @RequestHeader("Authorization") String authorization) {
-            if (!authClient.isAuthorizationValid(authorization)) {
+            if (!authorizationClient.isAuthorizationValid(authorization)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 
             List<SongList> songLists;
             // if user id is not the same as the currently logged in user
-            if (!userId.equals(authClient.getUserId(authorization))) {
+            if (!userId.equals(authorizationClient.getUserId(authorization))) {
                 // return public songlists from userid
                 songLists = songListRepository.findPublicByUserId(userId);
             } else {
@@ -67,7 +75,7 @@
         public ResponseEntity<Map<String, Object>> getSongListById(
                 @PathVariable(value = "id") Long id,
                 @RequestHeader("Authorization") String authorization) {
-            if (!authClient.isAuthorizationValid(authorization)) {
+            if (!authorizationClient.isAuthorizationValid(authorization)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 
@@ -75,7 +83,7 @@
                     .orElseThrow(() -> new ResourceNotFoundException("SongList", "id", id));
             Map<String, Object> songListResponse;
             // prvate listen werden nicht ausggeben
-            if (!songList.getUserId().equals(authClient.getUserId(authorization))) {
+            if (!songList.getUserId().equals(authorizationClient.getUserId(authorization))) {
                 if (!songList.isPrivate()) {
                     songListResponse = buildSongListResponse(songList);
                     return ResponseEntity.ok(songListResponse);
@@ -92,11 +100,11 @@
         public ResponseEntity<?> createSongList(
                 @RequestBody Map<String, Object> songListPayload,
                 @RequestHeader("Authorization") String authorization) {
-            if (!authClient.isAuthorizationValid(authorization)) {
+            if (!authorizationClient.isAuthorizationValid(authorization)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 
-            UUID ownerId = authClient.getUserId(authorization);
+            String ownerId = authorizationClient.getUserId(authorization);
 
             Logger logger = LoggerFactory.getLogger(SongListController.class);
 
@@ -112,21 +120,36 @@
 
                 Set<Song> songs = new HashSet<>();
                 for (Map<String, Object> songPayload : songsPayload) {
-                    //Integer songId = (Integer) songPayload.get("id");
-                    String titel = (String) songPayload.get("title");
+                    String title = (String) songPayload.get("title");
                     String artist = (String) songPayload.get("artist");
                     String label = (String) songPayload.get("label");
                     Integer released = (Integer) songPayload.get("released");
 
-                    Song song = songsClient.getSongByDetails(titel, artist, label, released);
+                    Song song = songsClient.getSongByDetails(title, artist, label, released);
                     if (song == null) {
-                        throw new ResourceNotFoundException("Song", "titel", titel);
-                    } else
+                        throw new ResourceNotFoundException("Song", "title", title);
+                    } else {
                         songs.add(song);
+                    }
                 }
-                UUID userId = authClient.getUserId(authorization);
-                SongList songList = new SongList(isPrivate, name,   userId, songs);
+
+                String userId = authorizationClient.getUserId(authorization);
+
+                // Create and save the SongList first to generate songListId
+                SongList songList = new SongList(isPrivate, name, userId);
                 SongList createdSongList = songListRepository.save(songList);
+
+                // Use the generated songListId to create and associate SongListSong instances
+                Set<SongListSong> songListSongs = new HashSet<>();
+                for (Song song : songs) {
+                    SongListSong songListSong = new SongListSong();
+                    songListSong.setSongListId(createdSongList.getId()); // Use the generated songListId
+                    songListSong.setSongId(song.getUuid());
+                    songListSongs.add(songListSong);
+                }
+
+                // Save the SongListSong instances
+                //songListSongRepository.saveAll(songListSongs);
 
                 // Build the location URL with the newly created song list's ID
                 String locationUrl = "/songLists/" + createdSongList.getId();
@@ -137,12 +160,13 @@
                 return ResponseEntity.badRequest().build();
             }
         }
+
         @Transactional
         @DeleteMapping("/songLists/{id}")
         public ResponseEntity<?> deleteSongList(
                 @PathVariable(value = "id") Long id,
                 @RequestHeader("Authorization") String authorization) {
-            if (!authClient.isAuthorizationValid(authorization)) {
+            if (!authorizationClient.isAuthorizationValid(authorization)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
             Logger logger = LoggerFactory.getLogger(SongListController.class);
@@ -152,9 +176,9 @@
 
             logger.debug("songList: {}", songList);
             logger.debug(songList.getUserId().toString());
-            logger.debug(authClient.getUserId(authorization).toString());
+            logger.debug(authorizationClient.getUserId(authorization).toString());
 
-            if (!songList.getUserId().toString().equals(authClient.getUserId(authorization).toString())) {
+            if (!songList.getUserId().toString().equals(authorizationClient.getUserId(authorization).toString())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
             //delete entris in songlist_song table first
@@ -170,7 +194,12 @@
             songListResponse.put("isPrivate", songList.isPrivate());
             songListResponse.put("ownerId", songList.getUserId());
             songListResponse.put("name", songList.getName());
-            Set<Song> songs = songList.getSongs();
+            Set<UUID> songsUuids = songList.getSongsUuid();
+            Set<Song> songs = new HashSet<>();
+            for (UUID uuid : songsUuids) {
+                Song song = songsClient.getSongByUuid(uuid.toString());
+                songs.add(song);
+            }
 
             List<Map<String, Object>> songResponses = buildSongResponses(songs);
             songListResponse.put("songList", songResponses);
@@ -187,8 +216,17 @@
                 songResponse.put("artist", song.getArtist());
                 songResponse.put("label", song.getLabel());
                 songResponse.put("released", song.getReleased());
+                songResponse.put("uuid", song.getUuid());
                 songResponses.add(songResponse);
             }
             return songResponses;
+        }
+
+        private Song getSongByDetails(String titel, String artist, String label, Integer released) {
+            return songsClient.getSongByDetails(titel, artist, label, released);
+        }
+
+        private Song getSongByUuid(String uuid) {
+            return songsClient.getSongByUuid(uuid);
         }
     }

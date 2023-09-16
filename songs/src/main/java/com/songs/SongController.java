@@ -9,7 +9,7 @@ import java.util.UUID;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("rest")
+@RequestMapping("songMs")
 public class SongController {
     private final SongRepository songRepo;
     private final AuthClient authClient;

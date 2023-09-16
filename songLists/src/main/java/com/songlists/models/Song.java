@@ -1,22 +1,15 @@
-package com.songlists;
+package com.songlists.models;
 
 import jakarta.persistence.*;
 
 import java.util.UUID;
 
 
-@Entity
-@Table(name="songs")
+
 public class Song {
-    @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Integer id;
-
-    // New UUID attribute
-    @Column(name = "uuid", columnDefinition = "UUID")
     private UUID uuid;
-
     private String title;
     private String artist;
     private String label;
@@ -41,6 +34,7 @@ public class Song {
 
     public Song() {
     }
+
 
     public Integer getId() {
         return id;
@@ -89,15 +83,4 @@ public class Song {
     public void setUuid(UUID uuid) {
         this.uuid = uuid;
     }
-
-    /*
-    @JsonIgnore
-    public Set<SongList> getSongLists() {
-        return songLists;
-    }
-
-    public void setSongLists(Set<SongList> songLists) {
-        this.songLists = songLists;
-    }
-        */
 }

@@ -23,9 +23,6 @@ public class User {
     @Id
     private String userId;
 
-    @Column(name = "perm_id", columnDefinition = "UUID")
-    private UUID permId;
-
     private String password;
 
     private String firstName;
@@ -75,10 +72,6 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public UUID getPermId() {
-        return permId;
     }
 
     @Override
