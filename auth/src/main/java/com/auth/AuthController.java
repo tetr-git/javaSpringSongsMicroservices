@@ -2,10 +2,7 @@ package com.auth;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -52,6 +49,19 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
+
+    @GetMapping("/getUserId")
+    public ResponseEntity<UUID> checkOwner(
+            @RequestHeader("Authorization") String authorization
+    ) {
+        if (!isAuthorizationValid(authorization)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        User user = userRepo.findUserByStringId(getCurrentUserId());
+        return ResponseEntity.ok().body(user.getPermId());
+    }
+
+
 
     private static String generateRandomToken() {
         UUID uuid = UUID.randomUUID();

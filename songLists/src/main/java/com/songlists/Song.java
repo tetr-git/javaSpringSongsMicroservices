@@ -1,9 +1,8 @@
-package com.songs;
+package com.songlists;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
 import java.util.UUID;
-import java.util.Set;
 
 
 @Entity
@@ -33,7 +32,7 @@ public class Song {
 
      */
 
-    public Song (String title, String artist, String label, int released) {
+    public Song(String title, String artist, String label, int released) {
         this.title = title;
         this.artist = artist;
         this.label = label;

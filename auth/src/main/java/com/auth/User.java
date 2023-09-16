@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.Set;
+import java.util.UUID;
 /*
 CREATE TABLE UserTable (
     id serial PRIMARY KEY,
@@ -21,6 +22,9 @@ public class User {
 
     @Id
     private String userId;
+
+    @Column(name = "perm_id", columnDefinition = "UUID")
+    private UUID permId;
 
     private String password;
 
@@ -71,6 +75,10 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public UUID getPermId() {
+        return permId;
     }
 
     @Override

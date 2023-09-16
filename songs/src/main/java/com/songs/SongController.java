@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.UUID;
 import java.util.Optional;
 
 @RestController
@@ -33,6 +34,10 @@ public class SongController {
         if (!authClient.isAuthorizationValid(authorization)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
+        UUID uuid = UUID.randomUUID();
+        song.setUuid(uuid);
+
         Song createdSong = songRepo.save(song);
         return ResponseEntity
                 .created(URI.create("/rest/songs/" + createdSong.getId()))
@@ -75,8 +80,45 @@ public class SongController {
         existingSong.setLabel(songToPut.getLabel());
         existingSong.setReleased(songToPut.getReleased());
 
+        UUID uuid = UUID.randomUUID();
+        existingSong.setUuid(uuid);
+
         songRepo.save(existingSong);
 
         return ResponseEntity.noContent().build();
+    }
+
+    //get song by uuid
+    @GetMapping("/songs/uuid/{uuid}")
+    public ResponseEntity<Song> getSongByUuid(
+            @RequestHeader("Authorization") String authorization,
+            @PathVariable(value = "uuid") String uuid) {
+        if (!authClient.isAuthorizationValid(authorization)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Song song = songRepo.findByUuid(uuid);
+        if (song == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(song);
+    }
+
+    @GetMapping("/songs/find")
+    public ResponseEntity<Song> findSong(
+            @RequestHeader("Authorization") String authorization,
+            @RequestBody Song songToFind)
+             {
+        if (!authClient.isAuthorizationValid(authorization)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Song song = songRepo.findByDetails(songToFind.getTitle(), songToFind.getArtist(), songToFind.getLabel(), songToFind.getReleased());
+        if (song == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(song);
     }
 }
