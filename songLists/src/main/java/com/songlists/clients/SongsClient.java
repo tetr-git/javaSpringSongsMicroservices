@@ -4,6 +4,8 @@ import com.songlists.models.Song;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -54,21 +56,24 @@ public class SongsClient {
     }
 
     //find song by json with titel,artist,label,release year
-    public Song getSongByDetails(String titel, String artist, String label, int releaseYear, String authToken) {
-        String jsonRequestBody = "{\"titel\": \"" + titel + "\", " +
-                "\"artist\": \"" + artist + "\", " +
-                "\"label\": \"" + label + "\", " +
-                "\"releaseYear\": \"" + releaseYear + "\"}";
+    public Song getSongByDetails(
+            @RequestParam("title") String title,
+            @RequestParam("artist") String artist,
+            @RequestParam("label") String label,
+                @RequestParam("releaseYear") int releaseYear,
+            @RequestHeader("Authorization") String authToken) {
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON); // Set content type to JSON
         headers.set("Authorization", authToken); // Set the Authorization header
 
-        HttpEntity<String> requestEntity = new HttpEntity<>(jsonRequestBody, headers);
+        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
         try {
             ResponseEntity<Song> response = restTemplate.exchange(
-                    songsServiceUrl + "/songms/songs/find/",
+                    songsServiceUrl + "/songms/songs/find?title=" + title +
+                            "&artist=" + artist +
+                            "&label=" + label +
+                            "&releaseYear=" + releaseYear,
                     HttpMethod.GET,
                     requestEntity,
                     Song.class
@@ -90,6 +95,7 @@ public class SongsClient {
             return null;
         }
     }
+
 
 
 

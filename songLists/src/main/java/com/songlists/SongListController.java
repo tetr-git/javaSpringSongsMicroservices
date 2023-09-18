@@ -19,7 +19,7 @@
     import java.util.*;
 
     @RestController
-    @RequestMapping("/songMS")
+    @RequestMapping("/songms")
     public class SongListController {
 
         private final SongListRepository songListRepository;
@@ -101,8 +101,6 @@
             if (!authorizationClient.isAuthorizationValid(authorization)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
-
-            String ownerId = authorizationClient.getUserId(authorization);
 
             Logger logger = LoggerFactory.getLogger(SongListController.class);
 

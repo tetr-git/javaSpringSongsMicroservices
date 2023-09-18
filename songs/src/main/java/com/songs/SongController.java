@@ -112,17 +112,20 @@ public class SongController {
     @GetMapping("/songs/find")
     public ResponseEntity<Song> findSong(
             @RequestHeader("Authorization") String authorization,
-            @RequestBody Song songToFind)
-             {
+            @RequestParam("title") String title,
+            @RequestParam("artist") String artist,
+            @RequestParam("label") String label,
+            @RequestParam("releaseYear") int releaseYear) {
         if (!authClient.isAuthorizationValid(authorization)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        Song song = songRepo.findByDetails(songToFind.getTitle(), songToFind.getArtist(), songToFind.getLabel(), songToFind.getReleased());
+        Song song = songRepo.findByDetails(title, artist, label, releaseYear);
         if (song == null) {
             return ResponseEntity.notFound().build();
         }
 
         return ResponseEntity.ok(song);
     }
+
 }

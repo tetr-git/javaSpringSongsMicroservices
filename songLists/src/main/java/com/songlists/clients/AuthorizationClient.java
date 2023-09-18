@@ -59,7 +59,7 @@ public class AuthorizationClient {
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(
-                    authServiceUrl + "/get-userid",
+                    authServiceUrl + "/songsMS/get-userid",
                     HttpMethod.GET,
                     requestEntity,
                     String.class
