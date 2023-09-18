@@ -47,7 +47,7 @@
             }
 
             List<SongList> songLists;
-            // if user id is not the same as the currently logged in user
+            // if user id is not the same as the currently logged-in user
             if (!userId.equals(authorizationClient.getUserId(authorization))) {
                 // return public songlists from userid
                 songLists = songListRepository.findPublicByUserId(userId);
