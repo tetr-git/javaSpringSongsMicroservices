@@ -1,7 +1,9 @@
 package com.songs;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -9,7 +11,8 @@ import java.util.UUID;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("songMs")
+@Validated
+@RequestMapping("songms")
 public class SongController {
     private final SongRepository songRepo;
     private final AuthClient authClient;
@@ -30,6 +33,7 @@ public class SongController {
     @PostMapping("/songs")
     public ResponseEntity<?> createSong(
             @RequestHeader("Authorization") String authorization,
+            @Valid
             @RequestBody Song song) {
         if (!authClient.isAuthorizationValid(authorization)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -40,7 +44,7 @@ public class SongController {
 
         Song createdSong = songRepo.save(song);
         return ResponseEntity
-                .created(URI.create("/rest/songs/" + createdSong.getId()))
+                .created(URI.create("/songms/songs/" + createdSong.getId()))
                 .build();
     }
 
@@ -89,21 +93,21 @@ public class SongController {
     }
 
     //get song by uuid
-    @GetMapping("/songs/uuid/{uuid}")
-    public ResponseEntity<Song> getSongByUuid(
-            @RequestHeader("Authorization") String authorization,
-            @PathVariable(value = "uuid") String uuid) {
-        if (!authClient.isAuthorizationValid(authorization)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        @GetMapping("/songs/uuid/{uuid}")
+        public ResponseEntity<Song> getSongByUuid(
+                @RequestHeader("Authorization") String authorization,
+                @PathVariable(value = "uuid") String uuid) {
+            if (!authClient.isAuthorizationValid(authorization)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
 
-        Song song = songRepo.findByUuid(uuid);
-        if (song == null) {
-            return ResponseEntity.notFound().build();
-        }
+            Song song = songRepo.findByUuid(uuid);
+            if (song == null) {
+                return ResponseEntity.notFound().build();
+            }
 
-        return ResponseEntity.ok(song);
-    }
+            return ResponseEntity.ok(song);
+        }
 
     @GetMapping("/songs/find")
     public ResponseEntity<Song> findSong(

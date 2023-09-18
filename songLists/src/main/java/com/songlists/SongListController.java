@@ -38,9 +38,7 @@
             this.songsClient = songsClient;
         }
 
-
-
-        @GetMapping("/songLists")
+        @GetMapping("/song_lists")
         public ResponseEntity<List<Map<String, Object>>> getSongLists(
                 @RequestParam("userId") String userId,
                 @RequestHeader("Authorization") String authorization) {
@@ -64,14 +62,14 @@
 
             List<Map<String, Object>> songListResponses = new ArrayList<>();
             for (SongList songList : songLists) {
-                Map<String, Object> songListResponse = buildSongListResponse(songList);
+                Map<String, Object> songListResponse = buildSongListResponse(songList, authorization);
                 songListResponses.add(songListResponse);
             }
 
             return ResponseEntity.ok(songListResponses);
         }
 
-        @GetMapping("/songLists/{id}")
+        @GetMapping("/song_lists/{id}")
         public ResponseEntity<Map<String, Object>> getSongListById(
                 @PathVariable(value = "id") Long id,
                 @RequestHeader("Authorization") String authorization) {
@@ -85,17 +83,17 @@
             // prvate listen werden nicht ausggeben
             if (!songList.getUserId().equals(authorizationClient.getUserId(authorization))) {
                 if (!songList.isPrivate()) {
-                    songListResponse = buildSongListResponse(songList);
+                    songListResponse = buildSongListResponse(songList, authorization);
                     return ResponseEntity.ok(songListResponse);
                 } else {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                 }
             }
-            songListResponse = buildSongListResponse(songList);
+            songListResponse = buildSongListResponse(songList, authorization);
             return ResponseEntity.ok(songListResponse);
         }
 
-        @PostMapping("/songLists")
+        @PostMapping("/song_lists")
         @Transactional
         public ResponseEntity<?> createSongList(
                 @RequestBody Map<String, Object> songListPayload,
@@ -125,7 +123,7 @@
                     String label = (String) songPayload.get("label");
                     Integer released = (Integer) songPayload.get("released");
 
-                    Song song = songsClient.getSongByDetails(title, artist, label, released);
+                    Song song = songsClient.getSongByDetails(title, artist, label, released, authorization);
                     if (song == null) {
                         throw new ResourceNotFoundException("Song", "title", title);
                     } else {
@@ -149,7 +147,7 @@
                 }
 
                 // Save the SongListSong instances
-                //songListSongRepository.saveAll(songListSongs);
+                songListSongRepository.saveAll(songListSongs);
 
                 // Build the location URL with the newly created song list's ID
                 String locationUrl = "/songLists/" + createdSongList.getId();
@@ -162,7 +160,7 @@
         }
 
         @Transactional
-        @DeleteMapping("/songLists/{id}")
+        @DeleteMapping("/song_lists/{id}")
         public ResponseEntity<?> deleteSongList(
                 @PathVariable(value = "id") Long id,
                 @RequestHeader("Authorization") String authorization) {
@@ -188,7 +186,7 @@
             return ResponseEntity.noContent().build();
         }
 
-        private Map<String, Object> buildSongListResponse(SongList songList) {
+        private Map<String, Object> buildSongListResponse(SongList songList, String authorization) {
             Map<String, Object> songListResponse = new LinkedHashMap<>();
             songListResponse.put("id", songList.getId());
             songListResponse.put("isPrivate", songList.isPrivate());
@@ -197,7 +195,7 @@
             Set<UUID> songsUuids = songList.getSongsUuid();
             Set<Song> songs = new HashSet<>();
             for (UUID uuid : songsUuids) {
-                Song song = songsClient.getSongByUuid(uuid.toString());
+                Song song = songsClient.getSongByUuid(uuid.toString(), authorization);
                 songs.add(song);
             }
 
@@ -222,11 +220,11 @@
             return songResponses;
         }
 
-        private Song getSongByDetails(String titel, String artist, String label, Integer released) {
-            return songsClient.getSongByDetails(titel, artist, label, released);
+        private Song getSongByDetails(String titel, String artist, String label, Integer released, String authorization) {
+            return songsClient.getSongByDetails(titel, artist, label, released,authorization);
         }
 
-        private Song getSongByUuid(String uuid) {
-            return songsClient.getSongByUuid(uuid);
+        private Song getSongByUuid(String uuid, String authorization) {
+            return songsClient.getSongByUuid(uuid, authorization);
         }
     }

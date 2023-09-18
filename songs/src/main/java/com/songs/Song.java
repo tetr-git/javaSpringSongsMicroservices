@@ -2,6 +2,11 @@ package com.songs;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import reactor.util.annotation.NonNull;
+
 import java.util.UUID;
 import java.util.Set;
 
@@ -13,14 +18,16 @@ public class Song {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    // New UUID attribute
     @Column(name = "uuid", columnDefinition = "UUID")
     private UUID uuid;
-
+    @NotBlank
     private String title;
+    @NotBlank
     private String artist;
+    @NotBlank
     private String label;
+    @Positive
+    @NonNull
     private int released;
 
     /*

@@ -19,17 +19,18 @@ public class SongsClient {
         this.songsServiceUrl = songsServiceUrl;
     }
 
-    public Song getSongByUuid(String songUuid) {
+    public Song getSongByUuid(String songUuid, String authToken) {
         String jsonRequestBody = "{\"songUuid\": \"" + songUuid + "\"}";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON); // Set content type to JSON
+        headers.set("Authorization", authToken); // Set the Authorization header
 
         HttpEntity<String> requestEntity = new HttpEntity<>(jsonRequestBody, headers);
 
         try {
             ResponseEntity<Song> response = restTemplate.exchange(
-                    songsServiceUrl + "/songMS/songs/uuid/" + songUuid,
+                    songsServiceUrl + "/songms/songs/uuid/" + songUuid,
                     HttpMethod.GET,
                     requestEntity,
                     Song.class
@@ -53,7 +54,7 @@ public class SongsClient {
     }
 
     //find song by json with titel,artist,label,release year
-    public Song getSongByDetails(String titel, String artist, String label, int releaseYear) {
+    public Song getSongByDetails(String titel, String artist, String label, int releaseYear, String authToken) {
         String jsonRequestBody = "{\"titel\": \"" + titel + "\", " +
                 "\"artist\": \"" + artist + "\", " +
                 "\"label\": \"" + label + "\", " +
@@ -61,12 +62,13 @@ public class SongsClient {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON); // Set content type to JSON
+        headers.set("Authorization", authToken); // Set the Authorization header
 
         HttpEntity<String> requestEntity = new HttpEntity<>(jsonRequestBody, headers);
 
         try {
             ResponseEntity<Song> response = restTemplate.exchange(
-                    songsServiceUrl + "/songMS/songs/find/",
+                    songsServiceUrl + "/songms/songs/find/",
                     HttpMethod.GET,
                     requestEntity,
                     Song.class
@@ -88,6 +90,7 @@ public class SongsClient {
             return null;
         }
     }
+
 
 
 }

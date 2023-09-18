@@ -50,7 +50,7 @@ public class AuthController {
         }
     }
 
-    @GetMapping("/getUserId")
+    @GetMapping("/get-userid")
     public ResponseEntity<String> getUserId(
             @RequestHeader("Authorization") String authorization
     ) {
@@ -68,14 +68,14 @@ public class AuthController {
         return uuid.toString();
     }
 
-    public boolean isAuthorizationValid(String authorization) {
+    private boolean isAuthorizationValid(String authorization) {
         if (authorization == null || authorization.isEmpty()) {
             return false;
         }
         return authorization.equals(currentToken);
     }
 
-    public String getCurrentUserId() {
+    private String getCurrentUserId() {
         return currentUserId;
     }
 }
