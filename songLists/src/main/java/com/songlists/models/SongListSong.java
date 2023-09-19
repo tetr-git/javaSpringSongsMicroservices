@@ -15,6 +15,7 @@ public class SongListSong implements Serializable {
     @Column(name = "songListId")
     private Integer songListId;
 
+
     @Id
     @Column(name = "songId")
     private UUID songId;

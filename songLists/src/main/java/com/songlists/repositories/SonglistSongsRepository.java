@@ -12,4 +12,9 @@ public interface SonglistSongsRepository extends CrudRepository<SongListSong, Lo
 
     @Query(value = "SELECT * FROM songlist_song WHERE songListId = ?1", nativeQuery = true)
     List<SongListSong> selectSongListSongBySongListId(int songListId);
+
+    //delete songlist_song by songlist id
+    @Query(value = "DELETE FROM songlist_song WHERE songListId = ?1", nativeQuery = true)
+    boolean deleteSongListSongBySongListId(int id);
+
 }

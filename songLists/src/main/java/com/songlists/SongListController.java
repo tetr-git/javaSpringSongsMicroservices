@@ -184,6 +184,78 @@
             return ResponseEntity.noContent().build();
         }
 
+
+        @PutMapping("/song_lists/{id}")
+        @Transactional
+        public ResponseEntity<?> updateSongList(
+                @PathVariable(value = "id") Long id,
+                @RequestBody Map<String, Object> songListPayload,
+                @RequestHeader("Authorization") String authorization) {
+            if (!authorizationClient.isAuthorizationValid(authorization)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            Logger logger = LoggerFactory.getLogger(SongListController.class);
+
+            try {
+                // Check if the song list with the given ID exists
+                SongList existingSongList = songListRepository.findById(id)
+                        .orElseThrow(() -> new ResourceNotFoundException("SongList", "id", id));
+
+                // Check if the user is the owner of the song list
+                if (!existingSongList.getUserId().equals(authorizationClient.getUserId(authorization))) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+                }
+
+                logger.debug("Received updated songListPayload: {}", songListPayload);
+                boolean isPrivate = (boolean) songListPayload.get("isPrivate");
+                String name = (String) songListPayload.get("name");
+                List<Map<String, Object>> songsPayload = (List<Map<String, Object>>) songListPayload.get("songList");
+
+                logger.debug("Updated isPrivate: {}", isPrivate);
+                logger.debug("Updated name: {}", name);
+                logger.debug("Updated songsPayload: {}", songsPayload);
+
+                songListRepository.deleteSongListSongBySongListId(existingSongList.getId());
+
+                Set<Song> updatedSongs = new HashSet<>();
+                for (Map<String, Object> songPayload : songsPayload) {
+                    String title = (String) songPayload.get("title");
+                    String artist = (String) songPayload.get("artist");
+                    String label = (String) songPayload.get("label");
+                    Integer released = (Integer) songPayload.get("released");
+
+                    Song song = songsClient.getSongByDetails(title, artist, label, released, authorization);
+                    if (song == null) {
+                        throw new ResourceNotFoundException("Song", "title", title);
+                    } else {
+                        updatedSongs.add(song);
+                    }
+                }
+
+                // Update the song list's properties
+                existingSongList.setPrivate(isPrivate);
+                existingSongList.setName(name);
+                songListRepository.save(existingSongList);
+
+                // Associate the updated songs with the song list
+                Set<SongListSong> songListSongs = new HashSet<>();
+                for (Song updatedSong : updatedSongs) {
+                    SongListSong songListSong = new SongListSong();
+                    songListSong.setSongListId(existingSongList.getId());
+                    songListSong.setSongId(updatedSong.getUuid());
+                    songListSongs.add(songListSong);
+                }
+                songListSongRepository.saveAll(songListSongs);
+
+                return ResponseEntity.ok().build();
+            } catch (Exception e) {
+                logger.error("Error occurred while updating the song list", e);
+                return ResponseEntity.badRequest().build();
+            }
+        }
+
+
         private Map<String, Object> buildSongListResponse(SongList songList, String authorization) {
             Map<String, Object> songListResponse = new LinkedHashMap<>();
             songListResponse.put("id", songList.getId());
@@ -202,6 +274,7 @@
 
             return songListResponse;
         }
+
 
         private List<Map<String, Object>> buildSongResponses(Set<Song> songs) {
             List<Map<String, Object>> songResponses = new ArrayList<>();

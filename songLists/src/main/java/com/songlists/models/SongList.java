@@ -83,17 +83,6 @@ public class SongList {
         this.songListSongs = songListSongs;
     }
 
-    public void addSong(Song song) {
-        if (songListSongs == null) {
-            songListSongs = new HashSet<>();
-        }
-
-        SongListSong songListSong = new SongListSong();
-        songListSong.setSongList(this);
-        songListSong.setSongId(song.getUuid());
-        songListSongs.add(songListSong);
-    }
-
     public Set<UUID> getSongsUuid() {
         Set<UUID> songsUuid = new HashSet<>();
         for (SongListSong songListSong : songListSongs) {
