@@ -65,9 +65,20 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.wrapper.spotify</groupId>
+			<groupId>se.michaelthelin.spotify</groupId>
 			<artifactId>spotify-web-api-java</artifactId>
 			<version>8.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>2.7.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 	</dependencies>
 	<dependencyManagement>
@@ -90,5 +101,6 @@
 			</plugin>
 		</plugins>
 	</build>
+
 
 </project>
