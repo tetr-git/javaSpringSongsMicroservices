@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Objects;
 
-;
 
 @RestController
 @RequestMapping("/spotify")
@@ -54,51 +53,51 @@ public class SpotifyController {
     }
 
 
-    @GetMapping("/callback")
-    public ResponseEntity<?> spotifyCallback(
-            @RequestParam("code") String authorizationCode,
-            @RequestParam("state") String state,
-            HttpServletRequest request) {
-        try {
-            // Handle the Spotify callback by exchanging the authorization code for tokens
-            // Use the Spotify API to make a POST request to obtain access and refresh tokens
+        @GetMapping("/callback")
+        public ResponseEntity<?> spotifyCallback(
+                @RequestParam("code") String authorizationCode,
+                @RequestParam("state") String state,
+                HttpServletRequest request) {
+            try {
+                // Handle the Spotify callback by exchanging the authorization code for tokens
+                // Use the Spotify API to make a POST request to obtain access and refresh tokens
 
-            // Read Spotify client credentials and redirect URI from application.properties
-            String clientId = environment.getProperty("spotify.clientId");
-            String clientSecret = environment.getProperty("spotify.clientSecret");
-            URI redirectUri = URI.create(Objects.requireNonNull(environment.getProperty("spotify.redirectUri")));
+                // Read Spotify client credentials and redirect URI from application.properties
+                String clientId = environment.getProperty("spotify.clientId");
+                String clientSecret = environment.getProperty("spotify.clientSecret");
+                URI redirectUri = URI.create(Objects.requireNonNull(environment.getProperty("spotify.redirectUri")));
 
-            SpotifyApi spotifyApi = new SpotifyApi.Builder()
-                    .setClientId(clientId)
-                    .setClientSecret(clientSecret)
-                    .setRedirectUri(redirectUri)
-                    .build();
+                SpotifyApi spotifyApi = new SpotifyApi.Builder()
+                        .setClientId(clientId)
+                        .setClientSecret(clientSecret)
+                        .setRedirectUri(redirectUri)
+                        .build();
 
-            // Use the Spotify API to obtain access and refresh tokens
-            AuthorizationCodeCredentials authorizationCodeCredentials = spotifyApi.authorizationCode(authorizationCode)
-                    .build()
-                    .execute();
+                // Use the Spotify API to obtain access and refresh tokens
+                AuthorizationCodeCredentials authorizationCodeCredentials = spotifyApi.authorizationCode(authorizationCode)
+                        .build()
+                        .execute();
 
-            // Store tokens in application.properties
-            PropertiesConfiguration config = new PropertiesConfiguration("application.properties");
-            config.setProperty("spotify.access.token", authorizationCodeCredentials.getAccessToken());
-            config.setProperty("spotify.refresh.token", authorizationCodeCredentials.getRefreshToken());
-            config.save();
+                // Store tokens in application.properties
+                PropertiesConfiguration config = new PropertiesConfiguration("application.properties");
+                config.setProperty("spotify.access.token", authorizationCodeCredentials.getAccessToken());
+                config.setProperty("spotify.refresh.token", authorizationCodeCredentials.getRefreshToken());
+                config.save();
 
-            // You can return a success message or redirect to another page
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body("Authorization successful. Access Token: " + authorizationCodeCredentials.getAccessToken());
+                // You can return a success message or redirect to another page
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body("Authorization successful. Access Token: " + authorizationCodeCredentials.getAccessToken());
 
-        } catch (IOException | SpotifyWebApiException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to obtain tokens from Spotify.");
-        } catch (ConfigurationException | org.apache.hc.core5.http.ParseException e) {
-            throw new RuntimeException(e);
+            } catch (IOException | SpotifyWebApiException e) {
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Failed to obtain tokens from Spotify.");
+            } catch (ConfigurationException | org.apache.hc.core5.http.ParseException e) {
+                throw new RuntimeException(e);
+            }
         }
-    }
 
-    @GetMapping("/spotify/authorize")
+    @GetMapping("/authorize")
     public String authorizeSpotify() {
         // Build the Spotify authorization URL
         String spotifyAuthorizeUrl = spotifyClient.buildAuthorizeUrl();
