@@ -50,7 +50,7 @@ public class SpotifyClient {
                 .execute();
     }
 
-    public String buildAuthorizeUrl() {
+    public String buildAuthorizeUrl(String state)   {
         SpotifyApi spotifyApi = new SpotifyApi.Builder()
                 .setClientId(clientId)
                 .setRedirectUri(redirectUri)
@@ -58,6 +58,7 @@ public class SpotifyClient {
 
         AuthorizationCodeUriRequest authorizationCodeUriRequest = spotifyApi.authorizationCodeUri()
                 .scope("user-library-read user-library-modify playlist-modify-public")
+                .state(state)
                 .build();
 
         URI authorizationUri = authorizationCodeUriRequest.execute();
