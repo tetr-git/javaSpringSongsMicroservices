@@ -33,6 +33,14 @@ public class SpotifyController {
         this.environment = environment;
     }
 
+    //todo: create route to create playlist from internal microservice
+    //  this get the userId from the database
+    //  should return link to spotify playlist on
+    //  in description auto time
+    //todo right service for spotifyuserdatabase access
+    //todo: authorzation check
+    //todo: authorise route save to db
+
     @PostMapping("/create_playlist")
     public ResponseEntity<?> createPlaylist(
             @RequestParam("accessToken") String accessToken,

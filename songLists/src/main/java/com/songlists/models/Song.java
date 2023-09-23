@@ -1,10 +1,6 @@
 package com.songlists.models;
 
-import jakarta.persistence.*;
-
 import java.util.UUID;
-
-
 
 public class Song {
 
