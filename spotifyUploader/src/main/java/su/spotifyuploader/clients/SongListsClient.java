@@ -1,12 +1,11 @@
 package su.spotifyuploader.clients;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import su.spotifyuploader.models.Playlist;
+import su.spotifyuploader.models.PlaylistBuild;
 import su.spotifyuploader.models.Song;
 
 import java.net.URI;
@@ -14,35 +13,38 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Component
 public class SongListsClient {
 
     private final RestTemplate restTemplate;
 
     private final String authServiceUrl;
 
-    private final String songplaylistsServiceUrl;
+    private final String songPlaylistsServiceUrl;
 
     public SongListsClient(RestTemplate restTemplate,
                            @Value("${auth.service.url}") String authServiceUrl,
-    @Value("${songplaylists.service.url}") String songplaylistsServiceUrl){
+    @Value("${songplaylists.service.url}") String songPlaylistsServiceUrl){
         this.restTemplate = restTemplate;
         this.authServiceUrl = authServiceUrl;
-        this.songplaylistsServiceUrl = songplaylistsServiceUrl;
+        this.songPlaylistsServiceUrl = songPlaylistsServiceUrl;
     }
 
-    public Playlist getPlaylistById(int internalId, String authToken) {
+    public PlaylistBuild getPlaylistById(int internalId, String authToken) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", authToken);
 
         // Build the URL to the microservice endpoint
         URI url = UriComponentsBuilder
-                .fromUriString(songplaylistsServiceUrl)
-                .path("/song_lists/{id}")
+                .fromUriString(songPlaylistsServiceUrl)
+                .path("/songms/song_lists/{id}")
                 .buildAndExpand(internalId)
                 .toUri();
-
+        // Pass the HttpHeaders with the Authorization header in the requestEntity
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
         // Make an HTTP GET request to the microservice
-        ResponseEntity<Object> response = restTemplate.getForEntity(url, Object.class);
+        ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, Object.class);
+        //ResponseEntity<Object> response = restTemplate.getForEntity(url, Object.class);
 
         if (response.getStatusCode() == HttpStatus.OK) {
             // Assuming the response body is a Map<String, Object> as shown in your example
@@ -71,7 +73,7 @@ public class SongListsClient {
             }
 
             // Create a Playlist object and return it
-            return new Playlist(id, isPrivate, ownerId, name, songs);
+            return new PlaylistBuild(id, isPrivate, ownerId, name, songs);
         } else if (response.getStatusCode() == HttpStatus.UNAUTHORIZED) {
             // Handle unauthorized error
             // You can throw an exception or return an error response

@@ -36,6 +36,8 @@ public class SpotifyClient {
                 .build();
     }
 
+
+
     public Playlist createPlaylist(String accessToken, String userId, String playlistName, String description, boolean isPublic) throws IOException, SpotifyWebApiException, ParseException, SpotifyWebApiException {
         // Set the access token obtained from Spotify's OAuth2 flow
         spotifyApi.setAccessToken(accessToken);
@@ -64,6 +66,5 @@ public class SpotifyClient {
         URI authorizationUri = authorizationCodeUriRequest.execute();
         return authorizationUri.toString();
     }
-
 }
 
