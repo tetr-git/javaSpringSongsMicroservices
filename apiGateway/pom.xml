@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>songms</groupId>
-    <artifactId>api_gateway</artifactId>
+    <artifactId>apiGateway</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>api_gateway</name>
     <description>api_gateway</description>
