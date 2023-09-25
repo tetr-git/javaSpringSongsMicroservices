@@ -82,8 +82,6 @@ public class SpotifyClient {
         }
     }
 
-
-
     public Playlist createPlaylist(String accessToken, String userId, String playlistName, boolean isPublic) throws IOException, SpotifyWebApiException, ParseException, SpotifyWebApiException {
         // Set the access token obtained from Spotify's OAuth2 flow
         spotifyApi.setAccessToken(accessToken);
@@ -98,32 +96,26 @@ public class SpotifyClient {
     }
 
     public String addTracksToPlaylist(String accessToken, String playlistId, List<String> trackUris) throws IOException, SpotifyWebApiException, ParseException {
-        // Set the access token obtained from Spotify's OAuth2 flow
         spotifyApi.setAccessToken(accessToken);
 
-        // Build the URL for adding tracks to the playlist
+        //add "spotify:track:" to each track id
+        trackUris.replaceAll(s -> "spotify:track:" + s);
+
         URI url = URI.create("https://api.spotify.com/v1/playlists/" + playlistId + "/tracks");
 
-        // Create headers with the authorization token
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
 
-        // Create a request entity with the track URIs
         HttpEntity<List<String>> requestEntity = new HttpEntity<>(trackUris, headers);
 
-        // Make a POST request to add tracks to the playlist
         ResponseEntity<SnapshotResult> response = restTemplate.postForEntity(url, requestEntity, SnapshotResult.class);
 
         if (response.getStatusCode() == HttpStatus.CREATED) {
-            // Successfully added tracks to the playlist, return the snapshot ID
             return Objects.requireNonNull(response.getBody()).getSnapshotId();
         } else {
-            // Handle error cases
             return null;
         }
     }
-
-
 
     public String buildAuthorizeUrl(String state)   {
         SpotifyApi spotifyApi = new SpotifyApi.Builder()
