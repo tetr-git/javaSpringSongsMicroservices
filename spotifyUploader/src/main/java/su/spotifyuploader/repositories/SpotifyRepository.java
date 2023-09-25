@@ -14,7 +14,7 @@ import java.util.List;
 public interface SpotifyRepository extends CrudRepository<SpotifyUser, Long> {
 
     //query to look for userId
-    @Query(value = "SELECT * FROM spotify_users WHERE user_id =?1", nativeQuery = true)
+    @Query(value = "SELECT * FROM spotifyuser WHERE userid =?1", nativeQuery = true)
     List<SpotifyUser> findSpotifyUserByUserId(String userId);
     // not working
     @Modifying

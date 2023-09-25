@@ -17,6 +17,8 @@ import su.spotifyuploader.repositories.SpotifyRepository;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -30,7 +32,6 @@ public class SpotifyController {
     private final AuthorizationClient authorizationClient;
     private final Environment environment;
     private final SpotifyRepository spotifyRepository;
-
     private String authorizationCodeRenewal;
     private String spotifyState;
 
@@ -66,33 +67,52 @@ public class SpotifyController {
         }
     }
 
-
-    @PostMapping("/create_playlist")
-    public ResponseEntity<?> createPlaylist(
-            @RequestParam("accessToken") String accessToken,
-            @RequestParam("userId") String userId,
-            @RequestParam("playlistName") String playlistName,
-            @RequestParam("description") String description,
-            @RequestParam("isPublic") boolean isPublic,
-            @RequestHeader("Authorization") String authorization
-    ) {
+    @PostMapping("/create_playlist_on_spotify/{internalId}")
+    public ResponseEntity<?> createPlaylistOnSpotify(
+            @PathVariable(value = "internalId") int internalId,
+            @RequestHeader("Authorization") String authorization) {
         if (!authorizationClient.isAuthorizationValid(authorization)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        try {
-            // Call the SpotifyClient to create a playlist on Spotify
-            Playlist createdPlaylist = spotifyClient.createPlaylist(accessToken, userId, playlistName, description, isPublic);
+        PlaylistBuild playlist = songListsClient.getPlaylistById(internalId, authorization);
+        if (playlist != null) {
+            try {
+                String accessToken = spotifyRepository.findSpotifyUserByUserId(playlist.getInternalOwnerId()).get(0).getAccessToken();
 
-            // You can return the created playlist information or just a success message
-            return ResponseEntity.status(HttpStatus.CREATED).body("Playlist created successfully. Playlist ID: " + createdPlaylist.getId());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create a playlist on Spotify.");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request or Spotify API credentials.");
+                Playlist createdPlaylist = spotifyClient.createPlaylist(accessToken, playlist.getInternalOwnerId(), playlist.getName(), playlist.getPrivate());
+
+                // Create a list to store track IDs
+                List<String> trackIds = new ArrayList<>();
+
+                // Fetch track IDs for each song and add them to the list
+                for (int i = 0; i < playlist.getSongs().size(); i++) {
+                    String trackId = spotifyClient.searchTrackAndGetId(accessToken, playlist.getSongs().get(i).getTitle(), playlist.getSongs().get(i).getArtist(), playlist.getSongs().get(i).getReleased());
+                    if (trackId != null) {
+                        trackIds.add(trackId);
+                    }
+                }
+
+                // Check if the list of track IDs is not empty before adding tracks
+                if (!trackIds.isEmpty()) {
+                    spotifyClient.addTracksToPlaylist(accessToken, createdPlaylist.getId(), trackIds);
+
+                    return ResponseEntity.status(HttpStatus.CREATED).body("Playlist created successfully. https://open.spotify.com/playlist/" + createdPlaylist.getId());
+                } else {
+                    // Handle the case when there are no valid track IDs to add
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No valid track IDs to add to the playlist.");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create a playlist on Spotify.");
+            } catch (Exception e) {
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request or Spotify API credentials.");
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 
     @GetMapping("/callback")
     public ResponseEntity<?> spotifyCallback(
@@ -160,9 +180,5 @@ public class SpotifyController {
 
         // Redirect the user to the Spotify authorization page
         return "redirect:" + spotifyAuthorizeUrl;
-    }
-
-    private String getUserId(){
-        return spotifyRepository.findSpotifyUserByUserId("userId").get(0).getUserId();
     }
 }
