@@ -17,15 +17,9 @@ public class RestTemplateConfig {
         return new RestTemplate();
     }
 
-
     public ResponseEntity<SnapshotResult> postForEntity(URI url, HttpEntity<List<String>> requestEntity, Class<SnapshotResult> snapshotResultClass) {
-        // Create an instance of RestTemplate
         RestTemplate restTemplate = new RestTemplate();
 
-        // Perform the POST request
-        ResponseEntity<SnapshotResult> response = restTemplate.postForEntity(url, requestEntity, snapshotResultClass);
-
-        // Return the response
-        return response;
+        return restTemplate.postForEntity(url, requestEntity, snapshotResultClass);
     }
 }

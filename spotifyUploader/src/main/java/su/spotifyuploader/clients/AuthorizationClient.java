@@ -11,14 +11,12 @@ import org.springframework.web.client.RestTemplate;
 public class AuthorizationClient {
     private final RestTemplate restTemplate;
     private final String authServiceUrl;
-
     public AuthorizationClient(RestTemplate restTemplate, @Value("${auth.service.url}") String authServiceUrl) {
         this.restTemplate = restTemplate;
         this.authServiceUrl = authServiceUrl;
     }
 
     public boolean isAuthorizationValid(String token) {
-        // Create a JSON request body
         String jsonRequestBody = "{\"token\": \"" + token + "\"}";
 
         HttpHeaders headers = new HttpHeaders();
@@ -35,17 +33,13 @@ public class AuthorizationClient {
             );
 
             if (response.getStatusCode() == HttpStatus.OK) {
-                // If the response is OK, the token is valid
                 return true;
             } else {
-                // Handle different HTTP response status codes here (e.g., 401, 403, etc.)
-                // You can log the response body for more details.
-                System.out.println("Response Status Code: " + response.getStatusCodeValue());
+                System.out.println("Response Status Code: " + response.getStatusCode());
                 System.out.println("Response Body: " + response.getBody());
                 return false;
             }
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            // Handle exceptions, e.g., connection errors or invalid URL
             e.printStackTrace();
             return false;
         }
@@ -66,17 +60,13 @@ public class AuthorizationClient {
             );
 
             if (response.getStatusCode() == HttpStatus.OK) {
-                // If the response is OK, the UUID is valid
                 return response.getBody();
             } else {
-                // Handle different HTTP response status codes here (e.g., 401, 403, etc.)
-                // You can log the response body for more details.
-                System.out.println("Response Status Code: " + response.getStatusCodeValue());
+                System.out.println("Response Status Code: " + response.getStatusCode());
                 System.out.println("Response Body: " + response.getBody());
                 return null;
             }
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            // Handle exceptions, e.g., connection errors or invalid URL
             e.printStackTrace();
             return null;
         }

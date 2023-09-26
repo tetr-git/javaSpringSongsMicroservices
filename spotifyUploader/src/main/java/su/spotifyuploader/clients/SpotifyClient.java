@@ -27,7 +27,6 @@ public class SpotifyClient {
     private final String clientId;
     private final URI redirectUri;
     private final SpotifyApi spotifyApi;
-
     private final RestTemplateConfig restTemplate;
 
     public SpotifyClient(@Value("${spotify.client.id}") String clientId,
@@ -40,7 +39,6 @@ public class SpotifyClient {
         this.redirectUri = redirectUri;
         this.restTemplate = restTemplate;
 
-        // Initialize Spotify API
         this.spotifyApi = new SpotifyApi.Builder()
                 .setClientId(clientId)
                 .setClientSecret(clientSecret)
@@ -69,24 +67,18 @@ public class SpotifyClient {
             List<Track> tracks = List.of(searchTracksRequest.execute().getItems());
 
             if (!tracks.isEmpty()) {
-                // Assuming you want to return the ID of the first matching track
                 return tracks.get(0).getId();
             } else {
-                // Handle the case when no matching tracks are found
                 return null;
             }
         } catch (IOException | SpotifyWebApiException | ParseException e) {
-            // Handle exceptions
-            e.printStackTrace(); // You can log the exception or handle it according to your application's needs
+            e.printStackTrace();
             return null;
         }
     }
 
     public Playlist createPlaylist(String accessToken, String userId, String playlistName, boolean isPublic) throws IOException, SpotifyWebApiException, ParseException, SpotifyWebApiException {
-        // Set the access token obtained from Spotify's OAuth2 flow
         spotifyApi.setAccessToken(accessToken);
-
-        // Create a new playlist
 
         return spotifyApi
                 .createPlaylist(userId, playlistName)
@@ -98,16 +90,13 @@ public class SpotifyClient {
     public String addTracksToPlaylist(String accessToken, String playlistId, List<String> trackUris) throws IOException, SpotifyWebApiException, ParseException {
         spotifyApi.setAccessToken(accessToken);
 
-        //add "spotify:track:" to each track id
         trackUris.replaceAll(s -> "spotify:track:" + s);
-
         URI url = URI.create("https://api.spotify.com/v1/playlists/" + playlistId + "/tracks");
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
 
         HttpEntity<List<String>> requestEntity = new HttpEntity<>(trackUris, headers);
-
         ResponseEntity<SnapshotResult> response = restTemplate.postForEntity(url, requestEntity, SnapshotResult.class);
 
         if (response.getStatusCode() == HttpStatus.CREATED) {

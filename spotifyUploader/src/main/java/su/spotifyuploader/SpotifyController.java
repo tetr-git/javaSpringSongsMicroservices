@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-
 @RestController
 @RequestMapping("/spotify")
 public class SpotifyController {
@@ -35,21 +34,13 @@ public class SpotifyController {
     private String authorizationCodeRenewal;
     private String spotifyState;
 
-    public SpotifyController(SpotifyClient spotifyClient, Environment environment, SongListsClient songListsClient, AuthorizationClient authorizationClient, SpotifyRepository spotifyRepository) {
+    public SpotifyController(SpotifyClient spotifyClient, SongListsClient songListsClient, AuthorizationClient authorizationClient, Environment environment, SpotifyRepository spotifyRepository) {
         this.spotifyClient = spotifyClient;
         this.songListsClient = songListsClient;
         this.authorizationClient = authorizationClient;
-        this.spotifyRepository = spotifyRepository;
         this.environment = environment;
+        this.spotifyRepository = spotifyRepository;
     }
-
-    //todo: create route to create playlist from internal microservice
-    //  this get the userId from the database
-    //  should return link to spotify playlist on
-    //  in description auto time
-    //todo right service for spotifyuserdatabase access
-    //todo: authorzation check
-    //todo: authorise route save to db
 
     @GetMapping("/get_playlist/{internalId}")
     public ResponseEntity<PlaylistBuild> getPlaylistById(
@@ -78,27 +69,21 @@ public class SpotifyController {
         if (playlist != null) {
             try {
                 String accessToken = spotifyRepository.findSpotifyUserByUserId(playlist.getInternalOwnerId()).get(0).getAccessToken();
-
                 Playlist createdPlaylist = spotifyClient.createPlaylist(accessToken, playlist.getInternalOwnerId(), playlist.getName(), playlist.getPrivate());
-
-                // Create a list to store track IDs
                 List<String> trackIds = new ArrayList<>();
 
-                // Fetch track IDs for each song and add them to the list
                 for (int i = 0; i < playlist.getSongs().size(); i++) {
-                    String trackId = spotifyClient.searchTrackAndGetId(accessToken, playlist.getSongs().get(i).getTitle(), playlist.getSongs().get(i).getArtist(), playlist.getSongs().get(i).getReleased());
+                    String trackId = spotifyClient.searchTrackAndGetId(accessToken, playlist.getSongs().get(i).title(), playlist.getSongs().get(i).artist(), playlist.getSongs().get(i).released());
                     if (trackId != null) {
                         trackIds.add(trackId);
                     }
                 }
 
-                // Check if the list of track IDs is not empty before adding tracks
                 if (!trackIds.isEmpty()) {
                     spotifyClient.addTracksToPlaylist(accessToken, createdPlaylist.getId(), trackIds);
 
                     return ResponseEntity.status(HttpStatus.CREATED).body("Playlist created successfully. https://open.spotify.com/playlist/" + createdPlaylist.getId());
                 } else {
-                    // Handle the case when there are no valid track IDs to add
                     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No valid track IDs to add to the playlist.");
                 }
             } catch (IOException e) {
@@ -119,16 +104,11 @@ public class SpotifyController {
             @RequestParam("code") String authorizationCode,
             @RequestParam("state") String state) {
         try {
-            // Verify that the 'state' parameter from the callback matches the stored 'state'
             if (!state.equals(spotifyState)) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("Invalid 'state' parameter.");
             }
 
-            // Handle the Spotify callback by exchanging the authorization code for tokens
-            // Use the Spotify API to make a POST request to obtain access and refresh tokens
-
-            // Read Spotify client credentials and redirect URI from application.properties
             String clientId = environment.getProperty("spotify.clientId");
             String clientSecret = environment.getProperty("spotify.clientSecret");
             URI redirectUri = URI.create(Objects.requireNonNull(environment.getProperty("spotify.redirect.uri")));
@@ -178,7 +158,6 @@ public class SpotifyController {
         spotifyState = UUID.randomUUID().toString(); // Generate and store the state
         String spotifyAuthorizeUrl = spotifyClient.buildAuthorizeUrl(spotifyState);
 
-        // Redirect the user to the Spotify authorization page
         return "redirect:" + spotifyAuthorizeUrl;
     }
 }
