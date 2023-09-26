@@ -10,6 +10,7 @@ import su.spotifyuploader.models.Song;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -77,5 +78,60 @@ public class SongListsClient {
         // Return null or an appropriate response in case of errors
         return null;
     }
+
+    public boolean createPlaylistFromPlaylistBuild(PlaylistBuild playlistBuild, String authorization) {
+
+        try {
+            // Extract playlist details from the PlaylistBuild object
+            boolean isPrivate = playlistBuild.getPrivate();
+            String name = playlistBuild.getName();
+            List<Song> songs = playlistBuild.getSongs();
+
+
+            // Create a payload in the required format for the SongLists microservice
+            Map<String, Object> songListPayload = new HashMap<>();
+            songListPayload.put("isPrivate", isPrivate);
+            songListPayload.put("name", name);
+
+            List<Map<String, Object>> songsPayload = new ArrayList<>();
+            for (Song song : songs) {
+                Map<String, Object> songPayload = new HashMap<>();
+                songPayload.put("title", song.getTitle());
+                songPayload.put("artist", song.getArtist());
+                songPayload.put("label", song.getLabel());
+                songPayload.put("released", song.getReleased());
+                songsPayload.add(songPayload);
+            }
+
+            songListPayload.put("songList", songsPayload);
+
+            // Build the URL to the microservice endpoint
+            URI url = UriComponentsBuilder
+                    .fromUriString(songPlaylistsServiceUrl)
+                    .path("/songms/song_lists")
+                    .build().toUri();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", authorization);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            // Create an HTTP entity with the payload and headers
+            HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(songListPayload, headers);
+
+            // Make an HTTP POST request to the microservice to create the playlist
+            ResponseEntity<?> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Object.class);
+
+            if (response.getStatusCode() == HttpStatus.CREATED) {
+                return true;
+            } else {
+                // Handle other HTTP status codes as needed
+                // You can throw an exception or return an error response
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 
 }

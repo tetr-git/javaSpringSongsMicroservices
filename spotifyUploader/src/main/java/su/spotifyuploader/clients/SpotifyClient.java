@@ -11,13 +11,17 @@ import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.special.SnapshotResult;
 import se.michaelthelin.spotify.model_objects.specification.Playlist;
+import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack;
 import se.michaelthelin.spotify.model_objects.specification.Track;
 import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeUriRequest;
 import se.michaelthelin.spotify.requests.data.search.simplified.SearchTracksRequest;
 import su.spotifyuploader.configs.RestTemplateConfig;
+import su.spotifyuploader.models.PlaylistBuild;
+import su.spotifyuploader.models.Song;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -76,6 +80,43 @@ public class SpotifyClient {
             return null;
         }
     }
+
+    public PlaylistBuild getPlaylistWithSongs(String playlistId, String accessToken, String userId) {
+        spotifyApi.setAccessToken(accessToken);
+
+        try {
+            Playlist playlist = spotifyApi.getPlaylist(playlistId).build().execute();
+
+            if (playlist != null) {
+                PlaylistTrack[] playlistTracks = playlist.getTracks().getItems();
+
+                List<Song> songs = new ArrayList<>();
+
+                for (PlaylistTrack playlistTrack : playlistTracks) {
+                    Track track = (Track) playlistTrack.getTrack();
+                    if (track != null) {
+                        Song song = new Song(
+                                track.getName(),
+                                track.getArtists()[0].getName(),
+                                track.getUri(),
+                                Integer.parseInt(track.getAlbum().getReleaseDate().split("-")[0]) // Extract year
+                        );
+                        songs.add(song);
+                    }
+                }
+                return new PlaylistBuild(
+                        false,
+                        userId,
+                        playlist.getName(),
+                        songs
+                );
+            }
+        } catch (IOException | SpotifyWebApiException | ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     public Playlist createPlaylist(String accessToken, String userId, String playlistName, boolean isPublic) throws IOException, SpotifyWebApiException, ParseException, SpotifyWebApiException {
         spotifyApi.setAccessToken(accessToken);

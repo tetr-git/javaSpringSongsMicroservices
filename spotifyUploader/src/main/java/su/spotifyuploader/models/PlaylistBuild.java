@@ -3,14 +3,21 @@ package su.spotifyuploader.models;
 import java.util.List;
 
 public class PlaylistBuild {
-    private final Integer internalId;
-    private final Boolean isPrivate;
-    private final String internalOwnerId;
-    private final String name;
-    private final List<Song> songs;
+    private Integer internalId;
+    private Boolean isPrivate;
+    private String internalOwnerId;
+    private String name;
+    private List<Song> songs;
 
     public PlaylistBuild(Integer internalId, Boolean isPrivate, String internalOwnerId, String name, List<Song> songs) {
         this.internalId = internalId;
+        this.isPrivate = isPrivate;
+        this.internalOwnerId = internalOwnerId;
+        this.name = name;
+        this.songs = songs;
+    }
+
+    public PlaylistBuild(Boolean isPrivate, String internalOwnerId, String name, List<Song> songs) {
         this.isPrivate = isPrivate;
         this.internalOwnerId = internalOwnerId;
         this.name = name;

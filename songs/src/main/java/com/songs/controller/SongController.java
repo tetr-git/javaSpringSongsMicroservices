@@ -47,6 +47,12 @@ public class SongController {
 
         Song createdSong;
         try {
+            //check if song already exists
+            Song existingSong = songRepo.findByDetails(song.getTitle(), song.getArtist(), song.getLabel(), song.getReleased());
+            if (existingSong != null) {
+                return ResponseEntity.status(409).build();
+            }
+
             createdSong = songRepo.save(song);
         } catch (Exception e) {
             return ResponseEntity.status(406).build();

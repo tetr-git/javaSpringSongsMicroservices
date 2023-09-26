@@ -110,10 +110,6 @@
                 String name = (String) songListPayload.get("name");
                 List<Map<String, Object>> songsPayload = (List<Map<String, Object>>) songListPayload.get("songList");
 
-                logger.debug("isPrivate: {}", isPrivate);
-                logger.debug("name: {}", name);
-                logger.debug("songsPayload: {}", songsPayload);
-
                 Set<Song> songs = new HashSet<>();
                 for (Map<String, Object> songPayload : songsPayload) {
                     String title = (String) songPayload.get("title");
