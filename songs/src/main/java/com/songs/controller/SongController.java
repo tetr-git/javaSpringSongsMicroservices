@@ -1,5 +1,8 @@
-package com.songs;
+package com.songs.controller;
 
+import com.songs.repositories.SongRepository;
+import com.songs.clients.AuthClient;
+import com.songs.models.Song;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +45,13 @@ public class SongController {
         UUID uuid = UUID.randomUUID();
         song.setUuid(uuid);
 
-        Song createdSong = songRepo.save(song);
+        Song createdSong;
+        try {
+            createdSong = songRepo.save(song);
+        } catch (Exception e) {
+            return ResponseEntity.status(406).build();
+        }
+
         return ResponseEntity
                 .created(URI.create("/songms/songs/" + createdSong.getId()))
                 .build();

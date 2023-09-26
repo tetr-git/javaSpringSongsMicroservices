@@ -1,9 +1,8 @@
-package com.auth;
+package com.auth.models;
 
 public class TokenRequest {
     private String token;
 
-    // Getter and Setter for the 'token' field
     public String getToken() {
         return token;
     }

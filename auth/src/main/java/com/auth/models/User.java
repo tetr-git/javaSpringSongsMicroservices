@@ -1,20 +1,8 @@
-package com.auth;
+package com.auth.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-
-import java.util.Set;
-import java.util.UUID;
-/*
-CREATE TABLE UserTable (
-    id serial PRIMARY KEY,
-    user_id VARCHAR ( 50 ) NOT NULL,
-    firstName VARCHAR ( 50 ) NOT NULL,
-    lastName VARCHAR ( 50 ) NOT NULL,
-    email VARCHAR ( 255 ) NOT NULL,
-);
- */
-
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "usertable")
@@ -31,13 +19,6 @@ public class User {
 
     public User() {
     }
-    /*@JsonIgnore
-    @OneToMany(mappedBy="userId",
-            cascade=CascadeType.ALL, orphanRemoval=true, fetch =
-            FetchType.EAGER)
-    Set<SongList> songLists;
-
-     */
 
     public User(String userId, String password, String firstName, String lastName) {
         this.userId = userId;
@@ -82,13 +63,4 @@ public class User {
     public void setUserId(String userId) {
         this.userId = userId;
     }
-    /*
-    public Set<SongList> getSongLists() {
-        return songLists;
-    }
-
-    public void setSongLists(Set<SongList> songLists) {
-        this.songLists = songLists;
-    }
-     */
 }

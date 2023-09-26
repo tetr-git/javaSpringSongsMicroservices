@@ -1,4 +1,4 @@
-package com.songs;
+package com.songs.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

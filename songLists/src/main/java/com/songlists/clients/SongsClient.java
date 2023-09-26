@@ -13,7 +13,6 @@ import org.springframework.web.client.RestTemplate;
 public class SongsClient {
 
     private final RestTemplate restTemplate;
-
     private final String songsServiceUrl;
 
     public SongsClient(RestTemplate restTemplate, @Value("${songs.service.url}") String songsServiceUrl) {
@@ -39,23 +38,18 @@ public class SongsClient {
             );
 
             if (response.getStatusCode() == HttpStatus.OK) {
-                // If the response is OK, the token is valid
                 return response.getBody();
             } else {
-                // Handle different HTTP response status codes here (e.g., 401, 403, etc.)
-                // You can log the response body for more details.
                 System.out.println("Response Status Code: " + response.getStatusCodeValue());
                 System.out.println("Response Body: " + response.getBody());
                 return null;
             }
         } catch (HttpClientErrorException | HttpServerErrorException ex) {
-            // Handle exceptions here (e.g., if the song microservice is unavailable)
             ex.printStackTrace();
             return null;
         }
     }
 
-    //find song by json with titel,artist,label,release year
     public Song getSongByDetails(
             @RequestParam("title") String title,
             @RequestParam("artist") String artist,
@@ -80,17 +74,13 @@ public class SongsClient {
             );
 
             if (response.getStatusCode() == HttpStatus.OK) {
-                // If the response is OK, the token is valid
                 return response.getBody();
             } else {
-                // Handle different HTTP response status codes here (e.g., 401, 403, etc.)
-                // You can log the response body for more details.
                 System.out.println("Response Status Code: " + response.getStatusCodeValue());
                 System.out.println("Response Body: " + response.getBody());
                 return null;
             }
         } catch (HttpClientErrorException | HttpServerErrorException ex) {
-            // Handle exceptions here (e.g., if the song microservice is unavailable)
             ex.printStackTrace();
             return null;
         }

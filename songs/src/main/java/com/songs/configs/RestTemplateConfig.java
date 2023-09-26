@@ -1,4 +1,4 @@
-package com.songs;
+package com.songs.configs;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

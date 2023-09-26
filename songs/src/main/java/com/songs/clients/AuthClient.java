@@ -1,4 +1,4 @@
-package com.songs;
+package com.songs.clients;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;

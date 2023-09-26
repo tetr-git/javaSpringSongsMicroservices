@@ -1,4 +1,4 @@
-    package com.songlists;
+    package com.songlists.controller;
 
     import com.songlists.clients.AuthorizationClient;
     import com.songlists.clients.SongsClient;

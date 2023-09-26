@@ -1,5 +1,8 @@
-package com.auth;
+package com.auth.controller;
 
+import com.auth.models.TokenRequest;
+import com.auth.models.User;
+import com.auth.repositories.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,11 +15,9 @@ import java.util.UUID;
 public class AuthController {
 
     private final UserRepository userRepo;
-
     public AuthController(UserRepository repo) {
         this.userRepo = repo;
     }
-
     private String currentToken;
     private String currentUserId;
 
@@ -34,7 +35,6 @@ public class AuthController {
         return ResponseEntity.ok().body(currentToken);
     }
 
-    //post route validate token
     @PostMapping("/validate")
     public ResponseEntity<String> validateToken(@RequestBody TokenRequest tokenRequest) {
         // Check if the token is null or empty in the tokenRequest object
@@ -60,8 +60,6 @@ public class AuthController {
         User user = userRepo.findUserByStringId(getCurrentUserId());
         return ResponseEntity.ok().body(user.getUserId());
     }
-
-
 
     private static String generateRandomToken() {
         UUID uuid = UUID.randomUUID();
