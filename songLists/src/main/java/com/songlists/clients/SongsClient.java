@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 @Component
 public class SongsClient {
 
@@ -50,11 +51,12 @@ public class SongsClient {
         }
     }
 
+
     public Song getSongByDetails(
             @RequestParam("title") String title,
             @RequestParam("artist") String artist,
             @RequestParam("label") String label,
-                @RequestParam("releaseYear") int releaseYear,
+            @RequestParam("releaseYear") int releaseYear,
             @RequestHeader("Authorization") String authToken) {
 
         HttpHeaders headers = new HttpHeaders();
@@ -63,10 +65,15 @@ public class SongsClient {
         HttpEntity<?> requestEntity = new HttpEntity<>(headers);
 
         try {
+            // URL-encode the query parameters
+            String encodedTitle = UriComponentsBuilder.fromPath(title).build().encode().toString();
+            String encodedArtist = UriComponentsBuilder.fromPath(artist).build().encode().toString();
+            String encodedLabel = UriComponentsBuilder.fromPath(label).build().encode().toString();
+
             ResponseEntity<Song> response = restTemplate.exchange(
-                    songsServiceUrl + "/songms/songs/find?title=" + title +
-                            "&artist=" + artist +
-                            "&label=" + label +
+                    songsServiceUrl + "/songms/songs/find?title=" + encodedTitle +
+                            "&artist=" + encodedArtist +
+                            "&label=" + encodedLabel +
                             "&releaseYear=" + releaseYear,
                     HttpMethod.GET,
                     requestEntity,
@@ -85,6 +92,7 @@ public class SongsClient {
             return null;
         }
     }
+
 
 
 

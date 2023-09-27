@@ -74,7 +74,9 @@ public class SpotifyController {
             PlaylistBuild playlist = spotifyClient.getPlaylistWithSongs(playlistUrl, accessToken, userId);
             if (playlist != null) {
                 for (int i = 0; i < playlist.getSongs().size(); i++) {
-                    songClient.createSong(playlist.getSongs().get(i), authorization);
+                    if (!songClient.createSong(playlist.getSongs().get(i), authorization)) {
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                    }
                 }
                 if (songListsClient.createPlaylistFromPlaylistBuild(playlist, authorization))
                     return ResponseEntity.status(HttpStatus.CREATED).build();

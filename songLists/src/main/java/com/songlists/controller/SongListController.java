@@ -102,10 +102,7 @@
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 
-            Logger logger = LoggerFactory.getLogger(SongListController.class);
-
             try {
-                logger.debug("Received songListPayload: {}", songListPayload);
                 boolean isPrivate = (boolean) songListPayload.get("isPrivate");
                 String name = (String) songListPayload.get("name");
                 List<Map<String, Object>> songsPayload = (List<Map<String, Object>>) songListPayload.get("songList");
@@ -148,7 +145,6 @@
 
                 return ResponseEntity.created(URI.create(locationUrl)).build();
             } catch (Exception e) {
-                logger.error("Error occurred while creating the song list", e);
                 return ResponseEntity.badRequest().build();
             }
         }

@@ -135,6 +135,16 @@ public class SongController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
+        if (title.contains("%20")) {
+            title = title.replace("%20", " ");
+        }
+        if (artist.contains("%20")) {
+            artist = artist.replace("%20", " ");
+        }
+        if (label.contains("%20")) {
+            label = label.replace("%20", " ");
+        }
+
         Song song = songRepo.findByDetails(title, artist, label, releaseYear);
         if (song == null) {
             return ResponseEntity.notFound().build();

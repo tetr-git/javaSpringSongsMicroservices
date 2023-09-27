@@ -15,8 +15,11 @@ public interface SongRepository extends CrudRepository<Song, Long> {
 
     @Query(value = "SELECT * FROM songs WHERE CAST(uuid AS TEXT) = ?1", nativeQuery = true)
     Song findByUuid(String uuid);
-
+    /*
     @Query(value = "SELECT * FROM songs WHERE title = ?1 AND artist = ?2 AND label = ?3 AND released = ?4", nativeQuery = true)
+    Song findByDetails(String title, String artist, String label, int released);
+    */
+    @Query(value = "SELECT * FROM songs WHERE title ILIKE ?1||'%' AND artist ILIKE ?2||'%' AND label = ?3 AND released = ?4", nativeQuery = true)
     Song findByDetails(String title, String artist, String label, int released);
 
 
