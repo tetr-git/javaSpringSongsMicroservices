@@ -61,12 +61,13 @@ public class SpotifyController {
         }
     }
 
-    @PostMapping("/save_playlist_from_spotify/{spotifyPlaylustUrl}")
+    @PostMapping("/save_playlist_from_spotify/{spotifyPlaylistUrl}")
     public ResponseEntity<?> savePlaylistFromSpotify(
-            @PathVariable(value = "spotifyPlaylustUrl") String playlistUrl,
+            @PathVariable(value = "spotifyPlaylistUrl") String playlistUrl,
             @RequestHeader("Authorization") String authorization) {
         if (!authorizationClient.isAuthorizationValid(authorization)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Unauthorized: Invalid Authorization Header");
         }
         try {
             String userId = authorizationClient.getUserId(authorization);
@@ -75,21 +76,26 @@ public class SpotifyController {
             if (playlist != null) {
                 for (int i = 0; i < playlist.getSongs().size(); i++) {
                     if (!songClient.createSong(playlist.getSongs().get(i), authorization)) {
-                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body("Internal Server Error: Failed to create song");
                     }
                 }
                 if (songListsClient.createPlaylistFromPlaylistBuild(playlist, authorization))
                     return ResponseEntity.status(HttpStatus.CREATED).build();
                 else
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body("Internal Server Error: Failed to create playlist");
             } else {
-                return ResponseEntity.status(404).build();
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Not Found: Spotify playlist not found");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Internal Server Error: An unexpected error occurred");
         }
     }
+
 
 
     @PostMapping("/create_playlist_on_spotify/{internalId}")
