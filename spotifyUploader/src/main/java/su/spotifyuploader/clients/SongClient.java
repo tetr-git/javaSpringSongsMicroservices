@@ -34,7 +34,7 @@ public class SongClient {
 
         try {
             ResponseEntity<String> responseEntity = restTemplate.exchange(
-                    songServiceUrl + "/songms/songs",
+                    songServiceUrl + "/songs/songs",
                     HttpMethod.POST,
                     requestEntity,
                     String.class);

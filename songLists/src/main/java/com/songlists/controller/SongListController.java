@@ -19,7 +19,7 @@
     import java.util.*;
 
     @RestController
-    @RequestMapping("/songms")
+    @RequestMapping("/song_lists")
     public class SongListController {
 
         private final SongListRepository songListRepository;

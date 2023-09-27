@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @RestController
 @Validated
-@RequestMapping("songms")
+@RequestMapping("songs")
 public class SongController {
     private final SongRepository songRepo;
     private final AuthClient authClient;

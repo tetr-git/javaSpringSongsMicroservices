@@ -20,11 +20,14 @@ public class GatewayConfig {
                         .path("/songs/**")
                         .uri("http://localhost:8082")
                 )
-                .route("playlists_route", r -> r
-                        .path("/playlists/**")
+                .route("song_lists", r -> r
+                        .path("/song_lists/**")
                         .uri("http://localhost:8083")
                 )
-                // Add more routes as needed
+                .route("spotify", r -> r
+                        .path("/spotify/**")
+                        .uri("http://localhost:8084")
+                )
                 .build();
     }
 }

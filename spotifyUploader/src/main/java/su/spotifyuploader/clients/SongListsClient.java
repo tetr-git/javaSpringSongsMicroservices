@@ -33,17 +33,13 @@ public class SongListsClient {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", authToken);
 
-        // Build the URL to the microservice endpoint
         URI url = UriComponentsBuilder
                 .fromUriString(songPlaylistsServiceUrl)
-                .path("/songms/song_lists/{id}")
+                .path("/song_lists/song_lists/{id}")
                 .buildAndExpand(internalId)
                 .toUri();
-        // Pass the HttpHeaders with the Authorization header in the requestEntity
         HttpEntity<String> requestEntity = new HttpEntity<>(headers);
-        // Make an HTTP GET request to the microservice
         ResponseEntity<Object> response = restTemplate.exchange(url, HttpMethod.GET, requestEntity, Object.class);
-        //ResponseEntity<Object> response = restTemplate.getForEntity(url, Object.class);
 
         if (response.getStatusCode() == HttpStatus.OK) {
             Map<String, Object> responseBody = (Map<String, Object>) response.getBody();
@@ -67,16 +63,9 @@ public class SongListsClient {
             }
 
             return new PlaylistBuild(id, isPrivate, ownerId, name, songs);
-        } else if (response.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-            // Handle unauthorized error
-            // You can throw an exception or return an error response
         } else {
-            // Handle other HTTP status codes as needed
-            // You can throw an exception or return an error response
+            return null;
         }
-
-        // Return null or an appropriate response in case of errors
-        return null;
     }
 
     public boolean createPlaylistFromPlaylistBuild(PlaylistBuild playlistBuild, String authorization) {
@@ -108,7 +97,7 @@ public class SongListsClient {
             // Build the URL to the microservice endpoint
             URI url = UriComponentsBuilder
                     .fromUriString(songPlaylistsServiceUrl)
-                    .path("/songms/song_lists")
+                    .path("/song_lists/song_lists")
                     .build().toUri();
 
             HttpHeaders headers = new HttpHeaders();

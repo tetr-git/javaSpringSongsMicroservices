@@ -32,7 +32,7 @@ public class SongsClient {
 
         try {
             ResponseEntity<Song> response = restTemplate.exchange(
-                    songsServiceUrl + "/songms/songs/uuid/" + songUuid,
+                    songsServiceUrl + "/songs/songs/uuid/" + songUuid,
                     HttpMethod.GET,
                     requestEntity,
                     Song.class
@@ -71,7 +71,7 @@ public class SongsClient {
             String encodedLabel = UriComponentsBuilder.fromPath(label).build().encode().toString();
 
             ResponseEntity<Song> response = restTemplate.exchange(
-                    songsServiceUrl + "/songms/songs/find?title=" + encodedTitle +
+                    songsServiceUrl + "/songs/songs/find?title=" + encodedTitle +
                             "&artist=" + encodedArtist +
                             "&label=" + encodedLabel +
                             "&releaseYear=" + releaseYear,
