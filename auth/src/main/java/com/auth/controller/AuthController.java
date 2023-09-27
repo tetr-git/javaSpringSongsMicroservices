@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("songsMS")
+@RequestMapping("auth")
 public class AuthController {
 
     private final UserRepository userRepo;

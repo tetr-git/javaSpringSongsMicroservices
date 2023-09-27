@@ -26,7 +26,7 @@ public class AuthorizationClient {
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(
-                    authServiceUrl + "/songsMS/validate",
+                    authServiceUrl + "/auth/validate",
                     HttpMethod.POST,
                     requestEntity,
                     String.class
@@ -53,7 +53,7 @@ public class AuthorizationClient {
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(
-                    authServiceUrl + "/songsMS/get-userid",
+                    authServiceUrl + "/auth/get-userid",
                     HttpMethod.GET,
                     requestEntity,
                     String.class

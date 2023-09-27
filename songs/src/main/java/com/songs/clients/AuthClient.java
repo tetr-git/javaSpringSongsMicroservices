@@ -28,7 +28,7 @@ public class AuthClient {
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(
-                    authServiceUrl + "/songsMS/validate",
+                    authServiceUrl + "/auth/validate",
                     HttpMethod.POST,
                     requestEntity,
                     String.class
