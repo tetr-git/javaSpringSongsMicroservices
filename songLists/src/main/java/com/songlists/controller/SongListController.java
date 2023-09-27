@@ -47,12 +47,9 @@
             }
 
             List<SongList> songLists;
-            // if user id is not the same as the currently logged-in user
             if (!userId.equals(authorizationClient.getUserId(authorization))) {
-                // return public songlists from userid
                 songLists = songListRepository.findPublicByUserId(userId);
             } else {
-                // return all songlists from userid
                 songLists = songListRepository.findByUserId(userId);
             }
 
@@ -115,20 +112,16 @@
                     Integer released = (Integer) songPayload.get("released");
 
                     Song song = songsClient.getSongByDetails(title, artist, label, released, authorization);
-                    if (song == null) {
-                        throw new ResourceNotFoundException("Song", "title", title);
-                    } else {
+                    if (song != null) {
                         songs.add(song);
                     }
                 }
 
                 String userId = authorizationClient.getUserId(authorization);
 
-                // Create and save the SongList first to generate songListId
                 SongList songList = new SongList(isPrivate, name, userId);
                 SongList createdSongList = songListRepository.save(songList);
 
-                // Use the generated songListId to create and associate SongListSong instances
                 Set<SongListSong> songListSongs = new HashSet<>();
                 for (Song song : songs) {
                     SongListSong songListSong = new SongListSong();
@@ -137,10 +130,8 @@
                     songListSongs.add(songListSong);
                 }
 
-                // Save the SongListSong instances
                 songListSongRepository.saveAll(songListSongs);
 
-                // Build the location URL with the newly created song list's ID
                 String locationUrl = "/songLists/" + createdSongList.getId();
 
                 return ResponseEntity.created(URI.create(locationUrl)).build();
@@ -157,22 +148,15 @@
             if (!authorizationClient.isAuthorizationValid(authorization)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
-            Logger logger = LoggerFactory.getLogger(SongListController.class);
 
             SongList songList = songListRepository.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("SongList", "id", id));
 
-            logger.debug("songList: {}", songList);
-            logger.debug(songList.getUserId().toString());
-            logger.debug(authorizationClient.getUserId(authorization).toString());
-
             if (!songList.getUserId().toString().equals(authorizationClient.getUserId(authorization).toString())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
-            //delete entris in songlist_song table first
             songListRepository.deleteSongListSongBySongListId(songList.getId());
             songListRepository.deleteSongListById(songList.getId());
-            //        songListRepository.deleteSongListById(songList.getId());
             return ResponseEntity.noContent().build();
         }
 

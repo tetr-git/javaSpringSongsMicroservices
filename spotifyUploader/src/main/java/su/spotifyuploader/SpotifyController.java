@@ -46,20 +46,23 @@ public class SpotifyController {
     }
 
     @GetMapping("/get_playlist/{internalId}")
-    public ResponseEntity<PlaylistBuild> getPlaylistById(
+    public ResponseEntity<?> getPlaylistById(
             @PathVariable(value = "internalId") int internalId,
             @RequestHeader("Authorization") String authorization) {
         if (!authorizationClient.isAuthorizationValid(authorization)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Unauthorized: Invalid Authorization Header");
         }
         PlaylistBuild playlist = songListsClient.getPlaylistById(internalId, authorization);
 
         if (playlist != null) {
             return ResponseEntity.ok(playlist);
         } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Not Found: Playlist with ID " + internalId + " not found");
         }
     }
+
 
     @PostMapping("/save_playlist_from_spotify/{spotifyPlaylistUrl}")
     public ResponseEntity<?> savePlaylistFromSpotify(
@@ -96,8 +99,6 @@ public class SpotifyController {
         }
     }
 
-
-
     @PostMapping("/create_playlist_on_spotify/{internalId}")
     public ResponseEntity<?> createPlaylistOnSpotify(
             @PathVariable(value = "internalId") int internalId,
@@ -105,8 +106,12 @@ public class SpotifyController {
         if (!authorizationClient.isAuthorizationValid(authorization)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
-        PlaylistBuild playlist = songListsClient.getPlaylistById(internalId, authorization);
+        PlaylistBuild playlist;
+        try {
+            playlist = songListsClient.getPlaylistById(internalId, authorization);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Playlist ID not found.");
+        }
         if (playlist != null) {
             try {
                 String accessToken = spotifyRepository.findSpotifyUserByUserId(playlist.getInternalOwnerId()).get(0).getAccessToken();
