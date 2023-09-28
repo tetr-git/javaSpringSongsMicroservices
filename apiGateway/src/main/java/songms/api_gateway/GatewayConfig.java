@@ -31,3 +31,27 @@ public class GatewayConfig {
                 .build();
     }
 }
+/*
+@Bean
+    public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
+        return builder.routes()
+                // Define routes directly
+                .route("auth_route", r -> r
+                        .path("/auth/**")
+                        .uri("lb://MS_AUTH")
+                )
+                .route("songs_route", r -> r
+                        .path("/songs/**")
+                        .uri("lb://ms_songs")
+                )
+                .route("song_lists", r -> r
+                        .path("/song_lists/**")
+                        .uri("lb://ms_song_lists")
+                )
+                .route("spotify", r -> r
+                        .path("/spotify/**")
+                        .uri("lb://ms_spotify")
+                )
+                .build();
+    }
+ */
