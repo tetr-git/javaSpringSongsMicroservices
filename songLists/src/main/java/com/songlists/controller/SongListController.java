@@ -122,15 +122,7 @@
                 SongList songList = new SongList(isPrivate, name, userId);
                 SongList createdSongList = songListRepository.save(songList);
 
-                Set<SongListSong> songListSongs = new HashSet<>();
-                for (Song song : songs) {
-                    SongListSong songListSong = new SongListSong();
-                    songListSong.setSongListId(createdSongList.getId()); // Use the generated songListId
-                    songListSong.setSongId(song.getUuid());
-                    songListSongs.add(songListSong);
-                }
-
-                songListSongRepository.saveAll(songListSongs);
+                fillSongListSong(songs, createdSongList);
 
                 String locationUrl = "/songLists/" + createdSongList.getId();
 
@@ -138,6 +130,18 @@
             } catch (Exception e) {
                 return ResponseEntity.badRequest().build();
             }
+        }
+
+        private void fillSongListSong(Set<Song> songs, SongList createdSongList) {
+            Set<SongListSong> songListSongs = new HashSet<>();
+            for (Song song : songs) {
+                SongListSong songListSong = new SongListSong();
+                songListSong.setSongListId(createdSongList.getId()); // Use the generated songListId
+                songListSong.setSongId(song.getUuid());
+                songListSongs.add(songListSong);
+            }
+
+            songListSongRepository.saveAll(songListSongs);
         }
 
         @Transactional
@@ -215,14 +219,7 @@
                 songListRepository.save(existingSongList);
 
                 // Associate the updated songs with the song list
-                Set<SongListSong> songListSongs = new HashSet<>();
-                for (Song updatedSong : updatedSongs) {
-                    SongListSong songListSong = new SongListSong();
-                    songListSong.setSongListId(existingSongList.getId());
-                    songListSong.setSongId(updatedSong.getUuid());
-                    songListSongs.add(songListSong);
-                }
-                songListSongRepository.saveAll(songListSongs);
+                fillSongListSong(updatedSongs, existingSongList);
 
                 return ResponseEntity.ok().build();
             } catch (Exception e) {

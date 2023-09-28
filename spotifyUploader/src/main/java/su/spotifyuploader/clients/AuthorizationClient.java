@@ -11,7 +11,7 @@ import org.springframework.web.client.RestTemplate;
 public class AuthorizationClient {
     private final RestTemplate restTemplate;
     private final String authServiceUrl;
-    public AuthorizationClient(RestTemplate restTemplate, @Value("${auth.service.url}") String authServiceUrl) {
+    public AuthorizationClient(RestTemplate restTemplate, @Value("${service.url}") String authServiceUrl) {
         this.restTemplate = restTemplate;
         this.authServiceUrl = authServiceUrl;
     }

@@ -16,7 +16,7 @@ public class SongsClient {
     private final RestTemplate restTemplate;
     private final String songsServiceUrl;
 
-    public SongsClient(RestTemplate restTemplate, @Value("${songs.service.url}") String songsServiceUrl) {
+    public SongsClient(RestTemplate restTemplate, @Value("${service.url}") String songsServiceUrl) {
         this.restTemplate = restTemplate;
         this.songsServiceUrl = songsServiceUrl;
     }

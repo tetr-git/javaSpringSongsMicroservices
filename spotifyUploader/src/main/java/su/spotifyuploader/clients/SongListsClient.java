@@ -18,15 +18,12 @@ import java.util.Map;
 public class SongListsClient {
 
     private final RestTemplate restTemplate;
-    private final String authServiceUrl;
-    private final String songPlaylistsServiceUrl;
+    private final String serviceUrl;
 
     public SongListsClient(RestTemplate restTemplate,
-                           @Value("${auth.service.url}") String authServiceUrl,
-    @Value("${songplaylists.service.url}") String songPlaylistsServiceUrl){
+                           @Value("${service.url}") String serviceUrl) {
         this.restTemplate = restTemplate;
-        this.authServiceUrl = authServiceUrl;
-        this.songPlaylistsServiceUrl = songPlaylistsServiceUrl;
+        this.serviceUrl = serviceUrl;
     }
 
     public PlaylistBuild getPlaylistById(int internalId, String authToken) {
@@ -34,7 +31,7 @@ public class SongListsClient {
         headers.set("Authorization", authToken);
 
         URI url = UriComponentsBuilder
-                .fromUriString(songPlaylistsServiceUrl)
+                .fromUriString(serviceUrl)
                 .path("/song_lists/song_lists/{id}")
                 .buildAndExpand(internalId)
                 .toUri();
@@ -96,7 +93,7 @@ public class SongListsClient {
 
             // Build the URL to the microservice endpoint
             URI url = UriComponentsBuilder
-                    .fromUriString(songPlaylistsServiceUrl)
+                    .fromUriString(serviceUrl)
                     .path("/song_lists/song_lists")
                     .build().toUri();
 
