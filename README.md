@@ -1,6 +1,6 @@
-# songsMS
+# JavaSpring Songs Microservices
 
-## Projektarbeit Kurs "Komponentenbasierte Entwicklung
+Projektarbeit Kurs "Komponentenbasierte Entwicklung
 
 #Microservices
 #Java Spring
